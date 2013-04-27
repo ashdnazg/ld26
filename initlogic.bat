@@ -28,22 +28,22 @@ REM %world.CreateWorldSpr% 50 50
 REM %render.Object% WORLD WORLD -1 -1
 %render.Sprite% spr_ud_wall ud_wall.spr
 %render.Sprite% spr_lr_wall lr_wall.spr
-%render.Sprite% spr_corner corner.spr
-%Objects.Object% obj_u_wall spr_lr_wall -1 -1 0 0 1 50 -100 KILL
-%Objects.Object% obj_l_wall spr_ud_wall -1 -1 0 0 50 1 -100 KILL
-%Objects.Object% obj_d_wall spr_lr_wall %WORLD_HEIGHT% -1 0 0 1 50 -100 KILL
-%Objects.Object% obj_r_wall spr_ud_wall -1 %WORLD_WIDTH% 0 0 50 1 -100 KILL
-%Objects.Object% obj_ul_corner spr_corner -1 -1 0 0 1 1 0
-%Objects.Object% obj_ur_corner spr_corner -1 %WORLD_WIDTH% 0 0 1 1 0
-%Objects.Object% obj_dl_corner spr_corner %WORLD_HEIGHT% -1 0 0 1 1 0
-%Objects.Object% obj_dr_corner spr_corner %WORLD_HEIGHT% %WORLD_WIDTH% 0 0 1 1 0
+
+%Objects.Object% obj_u_wall1 spr_lr_wall -1 -1 0 0 1 50 -100 KILL
+%Objects.Object% obj_d_wall1 spr_lr_wall -1 -1 0 0 1 50 -100 KILL
+%Objects.Object% obj_u_wall2 spr_lr_wall -1 -1 0 0 1 50 -100 KILL
+%Objects.Object% obj_d_wall2 spr_lr_wall -1 -1 0 0 1 50 -100 KILL
+%Objects.Object% obj_l_wall1 spr_ud_wall -1 -1 0 0 50 1 -100 KILL
+%Objects.Object% obj_r_wall1 spr_ud_wall -1 -1 0 0 50 1 -100 KILL
+%Objects.Object% obj_l_wall2 spr_ud_wall -1 -1 0 0 50 1 -100 KILL
+%Objects.Object% obj_r_wall2 spr_ud_wall -1 -1 0 0 50 1 -100 KILL
 
 %render.Sprite% spr_man_d man_d.spr
 %render.Sprite% spr_man_r man_r.spr
 %render.Sprite% spr_man_l man_l.spr
 %render.Sprite% spr_man_u man_u.spr
-%Objects.Object% obj_player spr_man_d -200 -200 0 0 3 3 0 STOP
-%Objects.Object% obj_npc spr_man_d -200 -200 0 0 3 3 0 STOP
+%Objects.Object% obj_player spr_man_r -200 -200 0 0 3 3 0 STOP
+%Objects.Object% obj_npc spr_man_l -200 -200 0 0 3 3 0 STOP VULNERABLE
 %render.Animation% anim_man_l_walk man_l_walk1.spr man_l_walk2.spr
 %render.Animation% anim_man_r_walk man_r_walk1.spr man_r_walk2.spr
 %render.Animation% anim_man_d_walk man_d_walk1.spr man_d.spr man_d_walk3.spr man_d.spr
@@ -54,6 +54,8 @@ REM %render.Object% WORLD WORLD -1 -1
 %render.Sprite% spr_man_r_punch man_r_punch.spr
 %render.Sprite% spr_man_u_punch man_u_punch.spr
 %render.Sprite% spr_man_d_punch man_d_punch.spr
+%render.Sprite% spr_man_dead dead.spr
+
 
 %objects.SetRandomLocation% obj_player 0 0 50 50 3 3
 %objects.SetRandomLocation% obj_npc 0 0 50 50 3 3

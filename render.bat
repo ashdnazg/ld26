@@ -50,14 +50,13 @@ FOR /L %%R IN (%~2,1,%~3) DO (
     )
     ECHO,!TEMPROW!
 )
-ENDLOCAL
 EXIT /b
 
 :PlayAnimation <object> <animation>
-SETLOCAL EnableDelayedExpansion
+REM SETLOCAL EnableDelayedExpansion
 IF "!%~1.PAUSEDANIMATION!"=="%~2" (
-    ENDLOCAL & SET %~1.ANIMATION=%~2
-) ELSE ENDLOCAL &(
+    SET %~1.ANIMATION=%~2
+) ELSE (
     SET %~1.ANIMATION=%~2
     SET %~1.PAUSEDANIMATION=%~2
     SET %~1.NEXTFRAME=0
@@ -122,12 +121,12 @@ FOR %%S IN (!%~1.ORIGINALSPRITE!) DO ENDLOCAL &(
 EXIT /b
 
 :Animate <objects>
-SETLOCAL EnableDelayedExpansion
+REM SETLOCAL EnableDelayedExpansion
 FOR %%O IN (!%~1!) DO IF "!%%O.ANIMATION!" NEQ "" FOR %%A IN (!%%O.ANIMATION!) DO FOR %%N IN (!%%O.NEXTFRAME!) DO FOR %%L IN (!%%A.LEN!) DO ENDLOCAL &(
     SET %%O.SPRITE=%%A[%%N]
     SET /A %%O.NEXTFRAME+=1
     SET /A %%O.NEXTFRAME%%=%%L
-    SETLOCAL EnableDelayedExpansion
+    REM SETLOCAL EnableDelayedExpansion
 )
-ENDLOCAL
+REM ENDLOCAL
 EXIT /b
