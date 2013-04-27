@@ -5,14 +5,13 @@ EXIT /b
 :Init
 CALL INCLUDE text
 CALL INCLUDE list
+CALL INCLUDE objects
 SET RENDERER=1
-%@list.New% RENDERER.OBJECTS
 SET RENDERER.HEIGHT=21
 SET RENDERER.WIDTH=70
 SET "RENDERER.BLANKROW=                                                                      "
 SET RENDERER.GLOBAL_COL=-10
 SET RENDERER.GLOBAL_ROW=15
-%@list.New% RENDERER.ANIMATEDOBJECTS
 
 EXIT /b
 
@@ -80,10 +79,10 @@ EXIT /b
 :SpriteRow out_row text
 SETLOCAL DisableDelayedExpansion
 SET "TEXT=%~2"
-%@text.StrLen% LENTOTAL TEXT
+%text.StrLen% LENTOTAL TEXT
 FOR /F "delims=" %%T IN ('ECHO ^| SET /p .^="%~2"') DO (
     SET STRIPPED=%%T
-    %@text.StrLen% LENSTRIPPED STRIPPED
+    %text.StrLen% LENSTRIPPED STRIPPED
 )
 ENDLOCAL & (
 SET "%~1=%STRIPPED%"
@@ -92,13 +91,6 @@ SET /A %~1.LEN=%LENSTRIPPED%
 )
 EXIT /b
 
-:Object <out_object> <sprite> <row> <col>
-SET %~1.SPRITE=%~2
-SET %~1.ORIGINALSPRITE=%~2
-SET %~1.ROW=%~3
-SET %~1.COL=%~4
-%@list.Add% RENDERER.OBJECTS %~1
-EXIT /b
 
 :Animation <out_animation> <Sprite files...>
 SETLOCAL EnableDelayedExpansion
