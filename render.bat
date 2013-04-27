@@ -7,18 +7,73 @@ CALL INCLUDE text
 CALL INCLUDE list
 SET RENDERER=1
 %@list.New% RENDERER.OBJECTS
-SET RENDERER.HEIGHT=22
+SET RENDERER.HEIGHT=21
 SET RENDERER.WIDTH=70
 SET "RENDERER.BLANKROW=                                                                      "
+SET RENDERER.GLOBAL_COL=-10
+SET RENDERER.GLOBAL_ROW=15
 %@list.New% RENDERER.ANIMATEDOBJECTS
+
+EXIT /b
+
+:Render <objects> <start_line> <end_line>
+SETLOCAL EnableDelayedExpansion
+FOR /L %%R IN (%~2,1,%~3) DO (
+    SET "TEMPROW=%RENDERER.BLANKROW%
+    FOR %%O IN (!%~1!) DO (
+        SET /A Y=%%R - !%%O.ROW! + %RENDERER.GLOBAL_ROW%
+        SET SPRITE=!%%O.SPRITE!
+        FOR %%S IN (!SPRITE!) DO (SET SPRITEROWS=!%%S.ROWS!)
+        IF !Y! GEQ 0 IF !SPRITEROWS! GTR !Y! FOR %%S IN (!SPRITE!) DO FOR %%Y IN (!Y!) DO (
+            SET /A BEFORE=!%%S[%%Y].START! + !%%O.COL! - %RENDERER.GLOBAL_COL%
+            IF !BEFORE! GEQ 0 (
+                SET START=0
+                SET /A AFTER=!BEFORE!+!%%S[%%Y].LEN!
+                IF !AFTER! GTR %RENDERER.WIDTH% (
+                    SET /A LEN=%RENDERER.WIDTH%-!BEFORE!
+                    IF 0 GTR !LEN! SET LEN=0
+                    SET AFTER=%RENDERER.WIDTH%
+                ) ELSE SET LEN=!%%S[%%Y].LEN!
+            ) ELSE (
+                SET /A START=0 - !BEFORE!
+                SET /A BEFORE=0
+                SET /A LEN=!%%S[%%Y].LEN!-!START!
+                IF 0 GTR !LEN! SET LEN=0
+                SET /A AFTER=!BEFORE!+!LEN!
+                IF !AFTER! GTR %RENDERER.WIDTH% (
+                    SET /A LEN=%RENDERER.WIDTH%-!BEFORE!
+                    IF 0 GTR !LEN! SET LEN=0
+                    SET AFTER=%RENDERER.WIDTH%
+                ) ELSE SET LEN=!%%S[%%Y].LEN!
+            )
+            FOR %%B IN (!BEFORE!) DO FOR %%A IN (!AFTER!) DO FOR %%T IN (!START!) DO FOR %%L IN (!LEN!) DO SET "TEMPROW=!TEMPROW:~0,%%B!!%%S[%%Y]:~%%T,%%L!!!TEMPROW:~%%A!"
+        )
+    )
+    ECHO,!TEMPROW!
+)
+ENDLOCAL
+EXIT /b
+
+:PlayAnimation <object> <animation>
+SETLOCAL EnableDelayedExpansion
+IF "!%~1.PAUSEDANIMATION!"=="%~2" (
+    ENDLOCAL & SET %~1.ANIMATION=%~2
+) ELSE ENDLOCAL &(
+    SET %~1.ANIMATION=%~2
+    SET %~1.PAUSEDANIMATION=%~2
+    SET %~1.NEXTFRAME=0
+)
 EXIT /b
 
 :Sprite <out_sprite> <file>
 SET %~1.ROWS=0
 FOR /F "delims=" %%A IN (%~2)  DO (
-    CALL SET "%~1[%%%~1.ROWS%%]=%%A"
-    CALL :SpriteRow %~1[%%%~1.ROWS%%] "%%A"
-    CALL SET /A %~1.ROWS=%%%~1.ROWS%%+1
+    SETLOCAL EnableDelayedExpansion
+    FOR %%R IN (!%~1.ROWS!) DO ENDLOCAL &(
+        SET "%~1[%%R]=%%A"
+        CALL :SpriteRow %~1[%%R] "%%A"
+        SET /A %~1.ROWS=%%R+1
+    )
 )
 EXIT /b
 
@@ -61,17 +116,6 @@ FOR %%S IN (%*) DO (
 ENDLOCAL & SET /A %~1.LEN=%N%
 EXIT /b
 
-:PlayAnimation <object> <animation>
-SETLOCAL EnableDelayedExpansion
-IF "!%~1.PAUSEDANIMATION!"=="%~2" (
-    ENDLOCAL & SET %~1.ANIMATION=%~2
-) ELSE ENDLOCAL &(
-    SET %~1.ANIMATION=%~2
-    SET %~1.PAUSEDANIMATION=%~2
-    SET %~1.NEXTFRAME=0
-)
-EXIT /b
-
 :PauseAnimation <object>
 SET %~1.ANIMATION=
 EXIT /b
@@ -92,46 +136,6 @@ FOR %%O IN (!%~1!) DO IF "!%%O.ANIMATION!" NEQ "" FOR %%A IN (!%%O.ANIMATION!) D
     SET /A %%O.NEXTFRAME+=1
     SET /A %%O.NEXTFRAME%%=%%L
     SETLOCAL EnableDelayedExpansion
-)
-ENDLOCAL
-EXIT /b
-    
-    
-
-:Render <objects> <start_line> <end_line>
-SETLOCAL EnableDelayedExpansion
-FOR /L %%R IN (%~2,1,%~3) DO (
-    SET "TEMPROW=%RENDERER.BLANKROW%
-    FOR %%O IN (!%~1!) DO (
-        SET /A Y=%%R - !%%O.ROW!
-        SET SPRITE=!%%O.SPRITE!
-        FOR %%S IN (!SPRITE!) DO (SET SPRITEROWS=!%%S.ROWS!)
-        IF !Y! GEQ 0 IF !SPRITEROWS! GTR !Y! FOR %%S IN (!SPRITE!) DO FOR %%Y IN (!Y!) DO (
-            SET /A BEFORE=!%%S[%%Y].START! + !%%O.COL!
-            IF !BEFORE! GEQ 0 (
-                SET START=0
-                SET /A AFTER=!BEFORE!+!%%S[%%Y].LEN!
-                IF !AFTER! GTR %RENDERER.WIDTH% (
-                    SET /A LEN=%RENDERER.WIDTH%-!BEFORE!
-                    IF 0 GTR !LEN! SET LEN=0
-                    SET AFTER=%RENDERER.WIDTH%
-                ) ELSE SET LEN=!%%S[%%Y].LEN!
-            ) ELSE (
-                SET /A START=0 - !BEFORE!
-                SET /A BEFORE=0
-                SET /A LEN=!%%S[%%Y].LEN!-!START!
-                IF 0 GTR !LEN! SET LEN=0
-                SET /A AFTER=!BEFORE!+!LEN!
-                IF !AFTER! GTR %RENDERER.WIDTH% (
-                    SET /A LEN=%RENDERER.WIDTH%-!BEFORE!
-                    IF 0 GTR !LEN! SET LEN=0
-                    SET AFTER=%RENDERER.WIDTH%
-                ) ELSE SET LEN=!%%S[%%Y].LEN!
-            )
-            FOR %%B IN (!BEFORE!) DO FOR %%A IN (!AFTER!) DO FOR %%T IN (!START!) DO FOR %%L IN (!LEN!) DO SET "TEMPROW=!TEMPROW:~0,%%B!!%%S[%%Y]:~%%T,%%L!!!TEMPROW:~%%A!"
-        )
-    )
-    ECHO,!TEMPROW!
 )
 ENDLOCAL
 EXIT /b

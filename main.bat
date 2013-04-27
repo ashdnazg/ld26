@@ -8,3 +8,4 @@ CALL INCLUDE timeops
 
 CALL initlogic.bat
 (input.bat | logicloop.bat | display.bat) & DEL *.tmp
+REM input.bat | logicloop.bat
