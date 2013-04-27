@@ -8,8 +8,8 @@ CALL INCLUDE list
 SET RENDERER=1
 %@list.New% RENDERER.OBJECTS
 SET RENDERER.HEIGHT=22
-SET RENDERER.WIDTH=50
-SET "RENDERER.BLANKROW=                                                  "
+SET RENDERER.WIDTH=70
+SET "RENDERER.BLANKROW=                                                                      "
 %@list.New% RENDERER.ANIMATEDOBJECTS
 EXIT /b
 
