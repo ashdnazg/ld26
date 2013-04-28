@@ -4,7 +4,6 @@ CALL :%*
 EXIT /b
 :Init
 CALL INCLUDE text
-CALL INCLUDE list
 CALL INCLUDE objects
 SET RENDERER=1
 SET RENDERER.HEIGHT=21
@@ -14,6 +13,15 @@ SET RENDERER.GLOBAL_COL=-10
 SET RENDERER.GLOBAL_ROW=15
 
 EXIT /b
+
+:Animate <objects>
+FOR %%O IN (!%~1!) DO IF "!%%O.ANIMATION!" NEQ "" FOR %%A IN (!%%O.ANIMATION!) DO FOR %%N IN (!%%O.NEXTFRAME!) DO FOR %%L IN (!%%A.LEN!) DO (
+    SET %%O.SPRITE=%%A[%%N]
+    SET /A %%O.NEXTFRAME+=1
+    SET /A %%O.NEXTFRAME%%=%%L
+)
+EXIT /b
+
 :Render <start_line> <end_line>
 SETLOCAL EnableDelayedExpansion
 SET /A STARTROW=RENDERER.GLOBAL_ROW+%~1
@@ -116,15 +124,4 @@ FOR %%S IN (!%~1.ORIGINALSPRITE!) DO ENDLOCAL &(
     SET %~1.PAUSEDANIMATION=
     SET %~1.SPRITE=%%S
 )
-EXIT /b
-
-:Animate <objects>
-REM SETLOCAL EnableDelayedExpansion
-FOR %%O IN (!%~1!) DO IF "!%%O.ANIMATION!" NEQ "" FOR %%A IN (!%%O.ANIMATION!) DO FOR %%N IN (!%%O.NEXTFRAME!) DO FOR %%L IN (!%%A.LEN!) DO ENDLOCAL &(
-    SET %%O.SPRITE=%%A[%%N]
-    SET /A %%O.NEXTFRAME+=1
-    SET /A %%O.NEXTFRAME%%=%%L
-    REM SETLOCAL EnableDelayedExpansion
-)
-REM ENDLOCAL
 EXIT /b

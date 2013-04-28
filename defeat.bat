@@ -11,7 +11,7 @@ IF %KILLS% GTR 0 (
 CALL :GetRandom adjectives.str ADJ
 CALL :GetRandom jobs.str JOB
 ECHO.
-ECHO Together with the few surviving stickpeople you've been transformed.
+ECHO Together with the few surviving stickpeople, you've been transformed.
 ECHO.
 ECHO From now on you exist as: @ - %ADJ% %JOB%
 ECHO.

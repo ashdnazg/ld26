@@ -29,12 +29,11 @@ IF %DIRECTION%==%HIT_KEY% SET DIRECTION=NONE
     )
 ) >NUL 2>&1 
 DEL input.tmp >NUL 2>&1
-ECHO %SPEED% >speed.tmp
-ECHO Before moving: %TIME% >> time.txt
+REM ECHO Before moving: %TIME% >> time.txt
 IF %DIRECTION%==%UP_KEY% (
     SET /A obj_player.ROW-=1
     %objects.CheckMove% obj_player STOP COLLISION
-    ECHO After checking: !TIME! >> time.txt
+    REM ECHO After checking: !TIME! >> time.txt
     IF !COLLISION! NEQ NONE (
         SET /A obj_player.ROW+=1
         SET DIRECTION=NONE
@@ -125,7 +124,7 @@ IF %DIRECTION%==%UP_KEY% (
 SET /A NEW_GLOBAL_COL=%obj_player.COL% - %RENDERER.WIDTH% / 2
 
 IF %NEW_GLOBAL_COL% GTR %RENDERER.GLOBAL_COL% SET RENDERER.GLOBAL_COL=%NEW_GLOBAL_COL%
-ECHO After moves: %TIME% >> time.txt
+REM ECHO After moves: %TIME% >> time.txt
 IF %DIRECTION%==NONE (
     SET obj_player.ANIMATION=
     SET obj_player.PAUSEDANIMATION=
@@ -161,20 +160,20 @@ IF %HIT_TYPE%==0 (
 ) ELSE IF %HIT_TYPE%==1 (
     SET obj_player.SPRITE=%obj_player.ORIGINALSPRITE:~0,9%_punch
 )
-ECHO Before col player: %TIME% >> time.txt
+REM ECHO Before col player: %TIME% >> time.txt
 %objects.CheckMove% obj_player KILL COLLISION
 IF !COLLISION! NEQ NONE SET LOST=1
 
 IF %LOST%==1 SET SOUND=SQUISH!
-ECHO Before sort and animation: %TIME% >> time.txt
+REM ECHO Before sort and animation: %TIME% >> time.txt
 %objects.Sort% OBJECTS_LIST
 %render.Animate% OBJECTS_LIST
-ECHO Before Render: %TIME% >> time.txt
+REM ECHO Before Render: %TIME% >> time.txt
 SETLOCAL EnableDelayedExpansion
 %render.SpritesPerRow% OBJECTS_LIST
 (@ECHO off & %render.Render% 0 6 > lines1.tmp) | (@ECHO off & %render.Render% 7 13 > lines2.tmp) | (@ECHO off & %render.Render% 14 %RENDERER.HEIGHT% > lines3.tmp)
 ENDLOCAL
-ECHO After Render: %TIME% >> time.txt
+REM ECHO After Render: %TIME% >> time.txt
 COPY /B lines*.tmp display.tmp > NUL 2>&1
 ECHO SOUND: %SOUND% >> display.tmp
 IF %LOST%==1 (

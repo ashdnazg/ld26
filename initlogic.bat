@@ -22,18 +22,13 @@ SET MAN_WIDTH=3
 
 DEL *.tmp > NUL 2>&1
 ECHO 1 >running.tmp
-CALL INCLUDE shrinker
 CALL INCLUDE world
 
 ECHO Loading Graphics...
-%render.Sprite% spr_ud_wall ud_wall.spr
-%render.Sprite% spr_lr_wall lr_wall.spr
 %render.Sprite% spr_wall_u_section1 section_wall.spr
 %render.Sprite% spr_wall_u_section2 section_wall.spr
 %render.Sprite% spr_wall_d_section1 section_wall.spr
 %render.Sprite% spr_wall_d_section2 section_wall.spr
-%render.Sprite% spr_sep_u sep_u.spr
-%render.Sprite% spr_sep_d sep_d.spr
 %render.Sprite% spr_man_r man_r.spr
 %render.Sprite% spr_man_l man_l.spr
 %render.Sprite% spr_man_l_kick man_l_kick.spr
@@ -51,14 +46,12 @@ ECHO Initializing Engine...
 %objects.Object% obj_wall_u_section2 spr_wall_u_section2 0 0 0 0 1 0 -100 KILL
 %objects.Object% obj_wall_d_section1 spr_wall_d_section1 0 0 0 0 1 0 -100 KILL
 %objects.Object% obj_wall_d_section2 spr_wall_d_section2 0 0 0 0 1 0 -100 KILL
-%objects.Object% obj_sep_u spr_sep_u 0 0 0 0 1 1 -100 KILL
-%objects.Object% obj_sep_d spr_sep_d 0 0 0 0 1 1 -100 KILL
 
 %Objects.Object% obj_player spr_man_r -200 -200 1 0 3 3 0 STOP
 %Objects.Object% obj_npc1 spr_man_l -100 -100 1 0 3 3 0 STOP VULNERABLE
 %Objects.Object% obj_npc2 spr_man_l -100 -100 1 0 3 3 0 STOP VULNERABLE
 %Objects.Object% obj_npc3 spr_man_l -100 -100 1 0 3 3 0 STOP VULNERABLE
-%Objects.Object% obj_npc4 spr_man_l -1 -1 1 0 3 3 0 STOP VULNERABLE RESERVE
+%Objects.Object% obj_npc4 spr_man_l -1 -1 1 0 3 3 0 STOP VULNERABLE
 
 
 
