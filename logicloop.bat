@@ -2,14 +2,17 @@
 SETLOCAL EnableDelayedExpansion
 %objects.Sort%
 %render.Animate% OBJECTS_LIST
-%render.Render% OBJECTS_LIST 0 %RENDERER.HEIGHT% > display.tmp
+SETLOCAL EnableDelayedExpansion
+%render.SpritesPerRow% OBJECTS_LIST
+%render.Render% 0 %RENDERER.HEIGHT% > display.tmp
+ENDLOCAL
 :Start
 IF NOT EXIST running.tmp EXIT /b
 IF EXIST ready.tmp GOTO :Start
 SET SOUND=*SILENCE*
 SET COLLISION=0
 SET HIT_TYPE=NONE
-REM %shrinker.Shrink%
+%world.UpdateWorld%
 IF %DIRECTION%==%HIT_KEY% SET DIRECTION=NONE
 (
     IF EXIST input.tmp FOR /F %%K IN (input.tmp) DO (
@@ -37,7 +40,6 @@ IF %DIRECTION%==%UP_KEY% (
         SET DIRECTION=NONE
     ) ELSE (
         SET /A RENDERER.GLOBAL_ROW-=1
-        REM SET obj_player.ORIGINALSPRITE=spr_man_u
         %render.PlayAnimation% obj_player anim_man_%obj_player.ORIGINALSPRITE:~-1%_walk
         SET SOUND=*STEPS*
         SET OBJECTS_LIST.CHANGED=1
@@ -50,31 +52,34 @@ IF %DIRECTION%==%UP_KEY% (
         SET DIRECTION=NONE
     ) ELSE (
         SET /A RENDERER.GLOBAL_ROW+=1
-        REM SET obj_player.ORIGINALSPRITE=spr_man_d
         %render.PlayAnimation% obj_player anim_man_%obj_player.ORIGINALSPRITE:~-1%_walk
         SET SOUND=*STEPS*
         SET OBJECTS_LIST.CHANGED=1
     )
 ) ELSE IF %DIRECTION%==%LEFT_KEY% (
-    SET /A obj_player.COL-=1
-    %objects.CheckMove% obj_player STOP COLLISION
-    IF !COLLISION! NEQ NONE (
-        SET /A obj_player.COL+=1
-        SET DIRECTION=NONE
-    ) ELSE (
-        SET /A RENDERER.GLOBAL_COL-=1
-        SET obj_player.ORIGINALSPRITE=spr_man_l
-        %render.PlayAnimation% obj_player anim_man_l_walk
-        SET SOUND=*STEPS*
+    IF %obj_player.COL% GTR %RENDERER.GLOBAL_COL% (
+        SET /A obj_player.COL-=1
+        %objects.CheckMove% obj_player STOP COLLISION
+        IF !COLLISION! NEQ NONE (
+            SET /A obj_player.COL+=1
+            SET !COLLISION!.ANIMATION=
+            SET !COLLISION!.SPRITE=spr_man_l
+            SET DIRECTION=NONE
+        ) ELSE (
+            SET obj_player.ORIGINALSPRITE=spr_man_l
+            %render.PlayAnimation% obj_player anim_man_l_walk
+            SET SOUND=*STEPS*
+        )
     )
 ) ELSE IF %DIRECTION%==%RIGHT_KEY% (
     SET /A obj_player.COL+=1
     %objects.CheckMove% obj_player STOP COLLISION
     IF !COLLISION! NEQ NONE (
         SET /A obj_player.COL-=1
+        SET !COLLISION!.ANIMATION=
+        SET !COLLISION!.SPRITE=spr_man_l
         SET DIRECTION=NONE
     ) ELSE (
-        SET /A RENDERER.GLOBAL_COL+=1
         SET obj_player.ORIGINALSPRITE=spr_man_r
         %render.PlayAnimation% obj_player anim_man_r_walk
         SET SOUND=*STEPS*
@@ -86,11 +91,14 @@ IF %DIRECTION%==%UP_KEY% (
         %objects.CheckMove% obj_player STOP COLLISION
         IF !COLLISION! NEQ NONE (
             %objects.CheckMove% obj_player VULNERABLE COLLISION
-            SET /A !COLLISION!.COL+=1
-            SET COLLISION=NONE
+            IF !COLLISION! NEQ NONE (
+                SET /A !COLLISION!.COL+=1
+                SET /A !COLLISION!.HP-=1
+                SET COLLISION=NONE
+            )
         )
         IF !COLLISION!==NONE (
-            SET /A obj_player.COL+=HIT_TYPE-1
+            SET /A obj_player.COL-=1-HIT_TYPE
             SET /A RENDERER.GLOBAL_COL+=HIT_TYPE
         )
         
@@ -100,18 +108,23 @@ IF %DIRECTION%==%UP_KEY% (
         %objects.CheckMove% obj_player STOP COLLISION
          IF !COLLISION! NEQ NONE (
             %objects.CheckMove% obj_player VULNERABLE COLLISION
-            SET /A !COLLISION!.COL-=1
-            SET COLLISION=NONE
+            IF !COLLISION! NEQ NONE (
+                SET /A !COLLISION!.COL-=1
+                SET /A !COLLISION!.HP-=1
+                SET COLLISION=NONE
+            )
         )
         IF !COLLISION!==NONE (
-            SET /A obj_player.COL-=HIT_TYPE-1
+            SET /A obj_player.COL+= 1 - HIT_TYPE
             SET /A RENDERER.GLOBAL_COL-=HIT_TYPE
         )
-    ) ELSE SET HIT_TYPE=1
+    )
     SET SOUND=POW!
 
 )
+SET /A NEW_GLOBAL_COL=%obj_player.COL% - %RENDERER.WIDTH% / 2
 
+IF %NEW_GLOBAL_COL% GTR %RENDERER.GLOBAL_COL% SET RENDERER.GLOBAL_COL=%NEW_GLOBAL_COL%
 ECHO After moves: %TIME% >> time.txt
 IF %DIRECTION%==NONE (
     SET obj_player.ANIMATION=
@@ -119,31 +132,45 @@ IF %DIRECTION%==NONE (
     SET obj_player.SPRITE=%obj_player.ORIGINALSPRITE%
 )
 FOR %%V IN (%VULNERABLE_LIST%) DO (
-    %objects.CheckMove% %%V KILL COLLISION
-    IF !COLLISION! NEQ NONE (
+    IF "!%%V.ANIMATION!" NEQ "" (
+        SET /A %%V.COL-=1
+        %objects.CheckCollisions% obj_player %%V COLLISION
+        IF !COLLISION!==1 (
+            SET %%V.ANIMATION=
+            SET %%V.SPRITE=spr_man_l
+            SET /A %%V.COL+=1
+        )
+    )
+    %objects.CheckMove% %%V KILL NPC_KILLED
+    IF !%%V.HP!==0 SET NPC_KILLED=1
+    IF !NPC_KILLED! NEQ NONE (
         SET %%V.ANIMATION=
         SET %%V.PAUSEDANIMATION=
         SET %%V.SPRITE=spr_man_dead
         SET /A %%V.ROW+=2
         SET VULNERABLE_LIST=!VULNERABLE_LIST:%%V=!
-        SET STOP_LIST=!VULNERABLE_LIST:%%V,=!
+        SET STOP_LIST=!STOP_LIST:%%V=!
     )
 )
-%objects.CheckMove% obj_player KILL COLLISION
-IF !COLLISION! NEQ NONE SET LOST=1
+set VULNERABLE_LIST > vln.txt
 IF %HIT_TYPE%==0 (
     SET obj_player.SPRITE=%obj_player.ORIGINALSPRITE:~0,9%_kick
 ) ELSE IF %HIT_TYPE%==1 (
     SET obj_player.SPRITE=%obj_player.ORIGINALSPRITE:~0,9%_punch
 )
+ECHO Before col player: %TIME% >> time.txt
+%objects.CheckMove% obj_player KILL COLLISION
+IF !COLLISION! NEQ NONE SET LOST=1
 
-SET SOUND=POW!
 IF %LOST%==1 SET SOUND=SQUISH!
 ECHO Before sort and animation: %TIME% >> time.txt
 %objects.Sort% OBJECTS_LIST
 %render.Animate% OBJECTS_LIST
 ECHO Before Render: %TIME% >> time.txt
-(@ECHO off & %render.Render% OBJECTS_LIST 0 6 > lines1.tmp) | (@ECHO off & %render.Render% OBJECTS_LIST 7 13 > lines2.tmp) | (@ECHO off & %render.Render% OBJECTS_LIST 14 %RENDERER.HEIGHT% > lines3.tmp)
+SETLOCAL EnableDelayedExpansion
+%render.SpritesPerRow% OBJECTS_LIST
+(@ECHO off & %render.Render% 0 6 > lines1.tmp) | (@ECHO off & %render.Render% 7 13 > lines2.tmp) | (@ECHO off & %render.Render% 14 %RENDERER.HEIGHT% > lines3.tmp)
+ENDLOCAL
 ECHO After Render: %TIME% >> time.txt
 COPY /B lines*.tmp display.tmp > NUL 2>&1
 ECHO SOUND: %SOUND% >> display.tmp

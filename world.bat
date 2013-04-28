@@ -3,110 +3,83 @@
 CALL :%*
 EXIT /b
 :Init
-SET WORLD.UD=³
-SET WORLD.DR=Ú
-SET WORLD.LR=Ä
-SET WORLD.DL=¿
-SET WORLD.UL=Ù
-SET WORLD.UR=À
-
-SET WORLD.UP=0
-SET WORLD.DOWN=1
-SET WORLD.LEFT=2
-SET WORLD.RIGHT=3
-
 EXIT /b
 
-:CreateWorldSpr <height> <width>
-SET WORLD.HEIGHT=%~1
-SET WORLD.WIDTH=%~2
-SET /A WORLD.ROWS=WORLD.HEIGHT+2
-SET /A H=%~1 + 1
-SET "WORLD.BLANKROW=%WORLD.UD%"
-SET "WORLD.FULLROW= "
-FOR /L %%C IN (1,1,%WORLD.WIDTH%) DO (
-    CALL SET "WORLD.BLANKROW=%%WORLD.BLANKROW%% "
-    CALL SET "WORLD.FULLROW=%%WORLD.FULLROW%%%%WORLD.LR%%"
+:UpdateWorld <height> <width>
+IF %obj_player.COL%==%UPDATE_COL_u_1% (
+    SET /A ROW=obj_wall_u_section1.ROW-1 
+    SET /A COL=obj_wall_u_section1.COL + spr_wall_u_section1[0].LEN + 1
+    CALL :Section 2 u !ROW! !COL!
+    SET /A obj_sep_u.ROW=obj_wall_u_section1.ROW
+    SET /A obj_sep_u.COL=COL-1
+    SET UPDATE_COL_u_1=NONE
 )
-SET "WORLD.BLANKROW=%WORLD.BLANKROW%%WORLD.UD%"
-SET "WORLD.FULLROW=%WORLD.FULLROW:~1%"
-SET WORLD[0]=%WORLD.DR%%WORLD.FULLROW%%WORLD.DL%
-SET /A WORLD[0].LEN=%WORLD.WIDTH% + 2
-SET WORLD[0].START=0
-FOR /L %%R IN (1,1,%WORLD.HEIGHT%) DO (
-    SET WORLD[%%R]=%WORLD.BLANKROW%
-    SET /A WORLD[%%R].LEN=%WORLD.WIDTH% + 2
-    SET WORLD[%%R].START=0
+IF %obj_player.COL%==%UPDATE_COL_u_2% (
+    SET /A ROW=obj_wall_u_section2.ROW-1 
+    SET /A COL=obj_wall_u_section2.COL + spr_wall_u_section2[0].LEN + 1
+    CALL :Section 1 u !ROW! !COL!
+    SET /A obj_sep_u.ROW=obj_wall_u_section2.ROW
+    SET /A obj_sep_u.COL=COL-1
+    SET UPDATE_COL_u_2=NONE
 )
-SET WORLD[%H%]=%WORLD.UR%%WORLD.FULLROW%%WORLD.UL%
-SET /A WORLD[%H%].LEN=%WORLD.WIDTH% + 2
-SET WORLD[%H%].START=0
+IF %obj_player.COL%==%UPDATE_COL_d_1% (
+    SET /A ROW=obj_wall_d_section1.ROW+1 
+    SET /A COL=obj_wall_d_section1.COL + spr_wall_d_section1[0].LEN + 1
+    CALL :Section 2 d !ROW! !COL!
+    SET /A obj_sep_d.ROW=obj_wall_d_section1.ROW
+    SET /A obj_sep_d.COL=COL-1
+    SET UPDATE_COL_d_1=NONE
+)
+IF %obj_player.COL%==%UPDATE_COL_d_2% (
+    SET /A ROW=obj_wall_d_section2.ROW+1 
+    SET /A COL=obj_wall_d_section2.COL + spr_wall_d_section2[0].LEN + 1
+    CALL :Section 1 d !ROW! !COL!
+    SET /A obj_sep_d.ROW=obj_wall_d_section2.ROW
+    SET /A obj_sep_d.COL=COL-1
+    SET UPDATE_COL_d_2=NONE
+)
+IF %RANDOM% LEQ 300 (
+    SET /A obj_wall_u_section1.ROW+=1
+    SET /A obj_wall_u_section2.ROW+=1
+    SET /A obj_sep_u.ROW+=1
+    SET /A obj_wall_d_section1.ROW-=1
+    SET /A obj_wall_d_section2.ROW-=1
+    SET /A obj_sep_d.ROW-=1
+)
+IF %RANDOM% LEQ 2000 (
+    IF %obj_npc1.COL% LEQ %RENDERER.GLOBAL_COL% (
+        SET /A COL=%obj_player.COL% + 70
+        %objects.SetRandomLocation% obj_npc1 %obj_wall_u_section1.ROW% !COL! %obj_wall_d_section1.ROW% !COL! 3 3
+        %render.PlayAnimation% obj_npc1 anim_man_l_walk
+        SET VULNERABLE_LIST=!VULNERABLE_LIST:obj_npc1=!,obj_npc1
+        SET STOP_LIST=!STOP_LIST:obj_npc1=!,obj_npc1
+        SET obj_npc1.HP=7
+    ) ELSE IF %obj_npc2.COL% LEQ %RENDERER.GLOBAL_COL% (
+        SET /A COL=%obj_player.COL% + 70
+        %objects.SetRandomLocation% obj_npc2 %obj_wall_u_section1.ROW% !COL! %obj_wall_d_section1.ROW% !COL! 3 3
+        %render.PlayAnimation% obj_npc2 anim_man_l_walk
+        SET VULNERABLE_LIST=!VULNERABLE_LIST:obj_npc2=!,obj_npc2
+        SET STOP_LIST=!STOP_LIST:obj_npc2=!,obj_npc2
+        SET obj_npc2.HP=7
+    ) ELSE IF %obj_npc3.COL% LEQ %RENDERER.GLOBAL_COL% (
+        SET /A COL=%obj_player.COL% + 70
+        %objects.SetRandomLocation% obj_npc3 %obj_wall_u_section1.ROW% !COL! %obj_wall_d_section1.ROW% !COL! 3 3
+        %render.PlayAnimation% obj_npc3 anim_man_l_walk
+        SET VULNERABLE_LIST=!VULNERABLE_LIST:obj_npc3=!,obj_npc3
+        SET STOP_LIST=!STOP_LIST:obj_npc3=!,obj_npc3
+        SET obj_npc3.HP=7
+    )
+)
 EXIT /b
 
-:ShrinkWorldSpr
-SET > set.set
-SET /a WORLD.SHRINKDIR=%RANDOM% %% 4
-IF %WORLD.SHRINKDIR%==%WORLD.UP% (
-    SETLOCAL EnableDelayedExpansion
-    FOR /L %%R IN (1,1,%WORLD.HEIGHT%) DO (
-        SET /A NEXTROW=%%R+1
-        FOR %%N IN (!NEXTROW!) DO FOR /F "delims=" %%O IN ("!WORLD[%%N]!") DO (
-            ENDLOCAL
-            SET "WORLD[%%R]=%%~O"
-            SETLOCAL EnableDelayedExpansion
-        )
-    ) 
-    SET /A H=%WORLD.HEIGHT%+1
-    FOR %%H IN (!H!) DO (
-        ENDLOCAL
-        SET WORLD[%%H]=
-    )
-    SET /A WORLD.HEIGHT-=1
-    SET /A WORLD.ROWS-=1
-    SET /A WORLD.ROW+=1
-) ELSE IF %WORLD.SHRINKDIR%==%WORLD.DOWN% (
-    SETLOCAL EnableDelayedExpansion
-    SET /A H=%WORLD.HEIGHT%+1
-    FOR %%H IN (!H!) DO FOR /F "delims=" %%R IN ("!WORLD[%%H]!") DO (
-        ENDLOCAL
-        SET "WORLD[%WORLD.HEIGHT%]=%%~R"
-        SET WORLD[%%H]=
-    )
-    SET /A WORLD.HEIGHT-=1
-    SET /A WORLD.ROWS-=1
-) ELSE IF %WORLD.SHRINKDIR%==%WORLD.LEFT% (
-    SETLOCAL EnableDelayedExpansion
-    SET /A H=%WORLD.HEIGHT% + 1
-    FOR /L %%R IN (0,1,!H!) DO (
-        SET TEMPROW="!WORLD[%%R]:~0,1!!WORLD[%%R]:~2,%WORLD.WIDTH%!"
-        ECHO !H! >> temp.txt
-        ECHO SET "TEMPROW=!WORLD[%%R]:~0,1!!WORLD[%%R]:~2!" >> temp.txt
-        FOR /F "delims=" %%O IN ("!TEMPROW!") DO (
-            ENDLOCAL
-            SET "WORLD[%%R]=%%~O"
-            SET /A WORLD[%%R].LEN-=1
-            SETLOCAL EnableDelayedExpansion
-        )
-    )
-    ENDLOCAL
-    SET /A WORLD.WIDTH-=1
-    SET /A WORLD.COL+=1
-) ELSE IF %WORLD.SHRINKDIR%==%WORLD.RIGHT% (
-    SETLOCAL EnableDelayedExpansion
-    SET /A H=%WORLD.HEIGHT% + 1
-    FOR /L %%R IN (0,1,!H!) DO (
-        ECHO !H! >> temp.txt
-        SET "TEMPROW=!WORLD[%%R]:~0,%WORLD.WIDTH%!!WORLD[%%R]:~-1!"
-        ECHO SET TEMPROW=!WORLD[%%R]:~0,%WORLD.WIDTH%!!WORLD[%%R]:~-1! >> temp.txt
-        FOR /F "delims=" %%O IN ("!TEMPROW!") DO (
-            ENDLOCAL
-            SET "WORLD[%%R]=%%~O"
-            SET /A WORLD[%%R].LEN-=1
-            SETLOCAL EnableDelayedExpansion
-        )
-    )
-    ENDLOCAL
-    SET /A WORLD.WIDTH-=1
-)
-SET > set.set2
+:Section <num> <dir> <row> <col>
+SET /A LEN=%RANDOM% %% 50 + 75 
+SET obj_wall_%~2_section%~1.ROW=%~3
+SET obj_wall_%~2_section%~1.COL=%~4
+SET spr_wall_%~2_section%~1[0].LEN=%LEN%
+SET obj_wall_%~2_section%~1.DELTA.RIGHT_COL=%LEN%
+SET /A UPDATE_COL_%~2_%~1=%~4 + %LEN% / 2
+EXIT /b
+
+:Shrink
 EXIT /b

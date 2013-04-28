@@ -28,13 +28,21 @@ IF %OBJECTS_LIST.CHANGED%==1 (
 )
 EXIT /b
 :CheckMove <object> <list> <out_result>
-ECHO !%~2_LIST! > list.txt
 FOR %%O IN (!%~2_LIST!) DO (
     IF "%%O" NEQ "%~1" (
-        CALL :CheckCollisions %~1 %%O COLLIDES
-        IF !COLLIDES!==1 (
-            SET %~3=%%O
-            EXIT /b
+        SET /A TEST=%~1.ROW + %~1.DELTA.TOP_ROW - %%O.ROW - %%O.DELTA.BOTTOM_ROW
+        IF 0 GTR !TEST! (
+            SET /A TEST=%%O.ROW + %%O.DELTA.TOP_ROW - %~1.ROW - %~1.DELTA.BOTTOM_ROW
+            IF 0 GTR !TEST! (         
+                SET /A TEST=%~1.COL + %~1.DELTA.LEFT_COL - %%O.COL - %%O.DELTA.RIGHT_COL
+                IF 0 GTR !TEST! (
+                    SET /A TEST=%%O.COL + %%O.DELTA.LEFT_COL - %~1.COL - %~1.DELTA.RIGHT_COL
+                    IF 0 GTR !TEST! (
+                        SET %~3=%%O
+                        EXIT /b
+                    )
+                )
+            )
         )
     )
 )
@@ -65,8 +73,8 @@ SET %~3=1
 EXIT /b
 
 :SetRandomLocation <object> <min_row> <min_col> <max_row> <max_col> <height> <width>
-SET /A %~1.COL=%RANDOM% %% (%~4 - %~2 - %~6) + %~2
-SET /A %~1.ROW=%RANDOM% %% (%~5 - %~3 - %~7) + %~3
+SET /A %~1.ROW=%RANDOM% %% (%~4 - %~2 - %~6) + %~2
+SET /A %~1.COL=%RANDOM% %% (%~5 - %~3 - %~7) + %~3
 FOR %%O IN (%OBJECTS_LIST%) DO (
     IF "%%O" NEQ "%~1" (
         CALL :CheckCollisions %~1 %%O COLLIDES
@@ -87,14 +95,18 @@ SET %~1.DELTA.LEFT_COL=%~6
 SET %~1.DELTA.BOTTOM_ROW=%~7
 SET %~1.DELTA.RIGHT_COL=%~8
 SET %~1.DELTA.Z=%~9
-SET OBJECTS_LIST=%OBJECTS_LIST%,%~1
-SET OBJECTS_LIST.CHANGED=1
 SET NAME=%1
 SHIFT
 SHIFT
-IF "%~8"=="KILL" SET KILL_LIST=%KILL_LIST%,%NAME%
-IF "%~8"=="STOP" SET STOP_LIST=%STOP_LIST%,%NAME%
-IF "%~9"=="VULNERABLE" SET VULNERABLE_LIST=%VULNERABLE_LIST%,%NAME%
+SHIFT
+IF "%~9" NEQ "RESERVE" (
+    SET OBJECTS_LIST=%OBJECTS_LIST%,%NAME%
+    SET OBJECTS_LIST.CHANGED=1
+    IF "%~7"=="KILL" SET KILL_LIST=%KILL_LIST%,%NAME%
+    IF "%~7"=="STOP" SET STOP_LIST=%STOP_LIST%,%NAME%
+    IF "%~8"=="VULNERABLE" SET VULNERABLE_LIST=%VULNERABLE_LIST%,%NAME%
+)
+
 
 EXIT /b
 
