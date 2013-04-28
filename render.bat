@@ -41,42 +41,6 @@ FOR /L %%R IN (%STARTROW%,1,%ENDTROW%) DO (
     )
     ECHO,!TEMPROW!
 )
-        
-REM :Render <objects> <start_line> <end_line>
-REM SETLOCAL EnableDelayedExpansion
-REM FOR /L %%R IN (%~2,1,%~3) DO (
-    REM SET "TEMPROW=%RENDERER.BLANKROW%"
-    REM FOR %%O IN (!%~1!) DO (
-        REM SET /A Y=%%R - !%%O.ROW! + %RENDERER.GLOBAL_ROW%
-        REM SET SPRITE=!%%O.SPRITE!
-        REM FOR %%S IN (!SPRITE!) DO (SET SPRITEROWS=!%%S.ROWS!)
-        REM IF !Y! GEQ 0 IF !SPRITEROWS! GTR !Y! FOR %%S IN (!SPRITE!) DO FOR %%Y IN (!Y!) DO (
-            REM SET /A BEFORE=!%%S[%%Y].START! + !%%O.COL! - %RENDERER.GLOBAL_COL%
-            REM IF !BEFORE! GEQ 0 (
-                REM SET START=0
-                REM SET /A AFTER=!BEFORE!+!%%S[%%Y].LEN!
-                REM IF !AFTER! GTR %RENDERER.WIDTH% (
-                    REM SET /A LEN=%RENDERER.WIDTH%-!BEFORE!
-                    REM IF 0 GTR !LEN! SET LEN=0
-                    REM SET AFTER=%RENDERER.WIDTH%
-                REM ) ELSE SET LEN=!%%S[%%Y].LEN!
-            REM ) ELSE (
-                REM SET /A START=0 - !BEFORE!
-                REM SET /A BEFORE=0
-                REM SET /A LEN=!%%S[%%Y].LEN!-!START!
-                REM IF 0 GTR !LEN! SET LEN=0
-                REM SET /A AFTER=!BEFORE!+!LEN!
-                REM IF !AFTER! GTR %RENDERER.WIDTH% (
-                    REM SET /A LEN=%RENDERER.WIDTH%-!BEFORE!
-                    REM IF 0 GTR !LEN! SET LEN=0
-                    REM SET AFTER=%RENDERER.WIDTH%
-                REM ) ELSE SET LEN=!%%S[%%Y].LEN!
-            REM )
-            REM FOR %%B IN (!BEFORE!) DO FOR %%A IN (!AFTER!) DO FOR %%T IN (!START!) DO FOR %%L IN (!LEN!) DO SET "TEMPROW=!TEMPROW:~0,%%B!!%%S[%%Y]:~%%T,%%L!!!TEMPROW:~%%A!"
-        REM )
-    REM )
-    REM ECHO,!TEMPROW!
-REM )
 EXIT /b
 
 :SpritesPerRow <objects>
@@ -101,8 +65,7 @@ EXIT /b
 :Sprite <out_sprite> <file>
 SET %~1.ROWS=0
 FOR /F "delims=" %%A IN (%~2)  DO (
-    SETLOCAL EnableDelayedExpansion
-    FOR %%R IN (!%~1.ROWS!) DO ENDLOCAL &(
+    FOR %%R IN (!%~1.ROWS!) DO (
         SET "%~1[%%R]=%%A"
         CALL :SpriteRow %~1[%%R] "%%A"
         SET /A %~1.ROWS=%%R+1

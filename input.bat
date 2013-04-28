@@ -6,4 +6,4 @@ IF %ERRORLEVEL%==%QUIT_KEY% (
     EXIT /b
 )
 (ECHO %ERRORLEVEL%) >input.tmp
-GOTO :Start
+IF EXIST running.tmp GOTO :Start

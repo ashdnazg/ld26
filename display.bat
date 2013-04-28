@@ -17,4 +17,3 @@ REM IF EXIST speed.tmp FOR /F %%S IN (speed.tmp) DO (
 REM ) > NUL 2>&1
 REM %timeops.Wait% %SPEED%
 IF EXIST running.tmp GOTO :Start
-COLOR 07

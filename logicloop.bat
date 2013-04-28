@@ -142,17 +142,20 @@ FOR %%V IN (%VULNERABLE_LIST%) DO (
         )
     )
     %objects.CheckMove% %%V KILL NPC_KILLED
-    IF !%%V.HP!==0 SET NPC_KILLED=1
+    IF !%%V.HP!==0 (
+        SET NPC_KILLED=1
+        SET /A KILLS+=1
+        SET SOUND=AHHHHHHHH!
+    )
     IF !NPC_KILLED! NEQ NONE (
         SET %%V.ANIMATION=
         SET %%V.PAUSEDANIMATION=
         SET %%V.SPRITE=spr_man_dead
         SET /A %%V.ROW+=2
-        SET VULNERABLE_LIST=!VULNERABLE_LIST:%%V=!
-        SET STOP_LIST=!STOP_LIST:%%V=!
+        SET VULNERABLE_LIST=!VULNERABLE_LIST:,%%V=!
+        SET STOP_LIST=!STOP_LIST:,%%V=!
     )
 )
-set VULNERABLE_LIST > vln.txt
 IF %HIT_TYPE%==0 (
     SET obj_player.SPRITE=%obj_player.ORIGINALSPRITE:~0,9%_kick
 ) ELSE IF %HIT_TYPE%==1 (
@@ -175,8 +178,14 @@ ECHO After Render: %TIME% >> time.txt
 COPY /B lines*.tmp display.tmp > NUL 2>&1
 ECHO SOUND: %SOUND% >> display.tmp
 IF %LOST%==1 (
-    ECHO You were killed. Press q to quit. >> display.tmp
+    ECHO You were caught by malicious walls >> display.tmp
     ECHO 04>color.tmp
 )
 ECHO 1 > ready.tmp
 IF %LOST%==0 GOTO :Start
+:Defeat
+IF EXIST ready.tmp GOTO :Defeat
+ping 1.1.1.1 -n 1 -w 2000 > NUL
+ECHO 07>color.tmp
+CALL defeat.bat > display.tmp
+ECHO 1 > ready.tmp

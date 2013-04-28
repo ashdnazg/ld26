@@ -3,6 +3,7 @@
 CALL :%*
 EXIT /b
 :Init
+SET SHRINK_CHANCE=300
 EXIT /b
 
 :UpdateWorld <height> <width>
@@ -38,34 +39,35 @@ IF %obj_player.COL%==%UPDATE_COL_d_2% (
     SET /A obj_sep_d.COL=COL-1
     SET UPDATE_COL_d_2=NONE
 )
-IF %RANDOM% LEQ 300 (
+IF %RANDOM% LEQ %SHRINK_CHANCE% (
     SET /A obj_wall_u_section1.ROW+=1
     SET /A obj_wall_u_section2.ROW+=1
     SET /A obj_sep_u.ROW+=1
     SET /A obj_wall_d_section1.ROW-=1
     SET /A obj_wall_d_section2.ROW-=1
     SET /A obj_sep_d.ROW-=1
-)
+    SET /A SHRINK_CHANCE-=100
+) ELSE SET /A SHRINK_CHANCE+=1
 IF %RANDOM% LEQ 2000 (
     IF %obj_npc1.COL% LEQ %RENDERER.GLOBAL_COL% (
         SET /A COL=%obj_player.COL% + 70
         %objects.SetRandomLocation% obj_npc1 %obj_wall_u_section1.ROW% !COL! %obj_wall_d_section1.ROW% !COL! 3 3
         %render.PlayAnimation% obj_npc1 anim_man_l_walk
-        SET VULNERABLE_LIST=!VULNERABLE_LIST:obj_npc1=!,obj_npc1
-        SET STOP_LIST=!STOP_LIST:obj_npc1=!,obj_npc1
+        SET VULNERABLE_LIST=!VULNERABLE_LIST:,obj_npc1=!,obj_npc1
+        SET STOP_LIST=!STOP_LIST:,obj_npc1=!,obj_npc1
         SET obj_npc1.HP=7
     ) ELSE IF %obj_npc2.COL% LEQ %RENDERER.GLOBAL_COL% (
         SET /A COL=%obj_player.COL% + 70
         %objects.SetRandomLocation% obj_npc2 %obj_wall_u_section1.ROW% !COL! %obj_wall_d_section1.ROW% !COL! 3 3
         %render.PlayAnimation% obj_npc2 anim_man_l_walk
-        SET VULNERABLE_LIST=!VULNERABLE_LIST:obj_npc2=!,obj_npc2
-        SET STOP_LIST=!STOP_LIST:obj_npc2=!,obj_npc2
+        SET VULNERABLE_LIST=!VULNERABLE_LIST:,obj_npc2=!,obj_npc2
+        SET STOP_LIST=!STOP_LIST:,obj_npc2=!,obj_npc2
         SET obj_npc2.HP=7
     ) ELSE IF %obj_npc3.COL% LEQ %RENDERER.GLOBAL_COL% (
         SET /A COL=%obj_player.COL% + 70
         %objects.SetRandomLocation% obj_npc3 %obj_wall_u_section1.ROW% !COL! %obj_wall_d_section1.ROW% !COL! 3 3
         %render.PlayAnimation% obj_npc3 anim_man_l_walk
-        SET VULNERABLE_LIST=!VULNERABLE_LIST:obj_npc3=!,obj_npc3
+        SET VULNERABLE_LIST=!VULNERABLE_LIST:,obj_npc3=!,obj_npc3
         SET STOP_LIST=!STOP_LIST:obj_npc3=!,obj_npc3
         SET obj_npc3.HP=7
     )
