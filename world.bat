@@ -36,8 +36,8 @@ IF %RANDOM% LEQ %SHRINK_CHANCE% (
     SET /A obj_wall_u_section2.ROW+=1
     SET /A obj_wall_d_section1.ROW-=1
     SET /A obj_wall_d_section2.ROW-=1
-    SET /A SHRINK_CHANCE-=80
-) ELSE SET /A SHRINK_CHANCE+=1
+    SET /A SHRINK_CHANCE-=110
+) ELSE SET /A SHRINK_CHANCE+=2
 IF %RANDOM% LEQ 2000 (
     IF %obj_npc1.COL% LEQ %RENDERER.GLOBAL_COL% (
         SET /A MIN_COL=%obj_player.COL% + 70
