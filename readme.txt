@@ -1,6 +1,7 @@
        I don't wanna be an @
 ===================================
 (Read: I don't wanna be an at sign)
+URL: https://github.com/ashdnazg/ld26
 
 This is a game created for the 26th Ludum Dare competition.
 The theme for the competition was Minimalism.
@@ -23,3 +24,12 @@ I still think it's rather amusing :)
 Why does the protagonist think being an @ sucks?
 ================================================
 Because if your sprite comprises of 9 ASCII characters you're obviously at least 9 times better than any one-chracter sprite, Duh!
+
+License
+=======
+Public domain, do with this whatever you like :)
+
+Thanks!
+=======
+Thanks for playing the game!
+Eshed Shaham (ashdnazg@gmail.com)

@@ -47,6 +47,7 @@ IF %RANDOM% LEQ 2000 (
         SET VULNERABLE_LIST=!VULNERABLE_LIST:,obj_npc1=!,obj_npc1
         SET STOP_LIST=!STOP_LIST:,obj_npc1=!,obj_npc1
         SET obj_npc1.HP=7
+        SET OBJECTS_LIST.CHANGED=1
     ) ELSE IF %obj_npc2.COL% LEQ %RENDERER.GLOBAL_COL% (
         SET /A MIN_COL=%obj_player.COL% + 70
         SET /A MAX_COL=%obj_player.COL% + 80
@@ -55,6 +56,7 @@ IF %RANDOM% LEQ 2000 (
         SET VULNERABLE_LIST=!VULNERABLE_LIST:,obj_npc2=!,obj_npc2
         SET STOP_LIST=!STOP_LIST:,obj_npc2=!,obj_npc2
         SET obj_npc2.HP=7
+        SET OBJECTS_LIST.CHANGED=1
     ) ELSE IF %obj_npc3.COL% LEQ %RENDERER.GLOBAL_COL% (
         SET /A MIN_COL=%obj_player.COL% + 70
         SET /A MAX_COL=%obj_player.COL% + 80
@@ -63,6 +65,7 @@ IF %RANDOM% LEQ 2000 (
         SET VULNERABLE_LIST=!VULNERABLE_LIST:,obj_npc3=!,obj_npc3
         SET STOP_LIST=!STOP_LIST:obj_npc3=!,obj_npc3
         SET obj_npc3.HP=7
+        SET OBJECTS_LIST.CHANGED=1
     ) ELSE IF %obj_npc4.COL% LEQ %RENDERER.GLOBAL_COL% (
         SET /A MIN_COL=%obj_player.COL% + 70
         SET /A MAX_COL=%obj_player.COL% + 80
@@ -71,6 +74,7 @@ IF %RANDOM% LEQ 2000 (
         SET VULNERABLE_LIST=!VULNERABLE_LIST:,obj_npc4=!,obj_npc4
         SET STOP_LIST=!STOP_LIST:obj_npc4=!,obj_npc4
         SET obj_npc4.HP=7
+        SET OBJECTS_LIST.CHANGED=1
     )
 )
 EXIT /b
